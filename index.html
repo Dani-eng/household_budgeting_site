@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    name="description"
+    content="Track household income, expenses, budgets, and forecasted costs."
+  >
+  <title>Household Budget</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- SheetJS provides Excel workbook import and export in the browser. -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1>Household Budget</h1>
+    <p>Track your household budget, review sample data, and save or restore your workbook.</p>
+  </header>
+
+  <main>
+    <aside class="demo-notice" aria-label="Sample data notice">
+      <strong>Sample data:</strong> This page starts with a fictional Indianapolis
+      household of four. The example address and budget figures are for demonstration
+      only. Changes are kept solely for this visit; export your workbook before leaving to
+      save them.
+    </aside>
+
+    <!-- Each tab controls a matching tab panel below. -->
+    <nav class="tab-navigation" role="tablist" aria-label="Budget sections">
+      <button
+        id="tab-dashboard"
+        class="tab-button active"
+        type="button"
+        role="tab"
+        aria-selected="true"
+        aria-controls="dashboard"
+        tabindex="0"
+        data-tab="dashboard"
+      >Monthly Budget</button>
+      <button
+        id="tab-budget-history"
+        class="tab-button"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="budget-history"
+        tabindex="-1"
+        data-tab="budget-history"
+      >Budget vs. History</button>
+      <button
+        id="tab-forecast"
+        class="tab-button"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="forecast"
+        tabindex="-1"
+        data-tab="forecast"
+      >Forecast</button>
+      <button
+        id="tab-profile"
+        class="tab-button"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="profile"
+        tabindex="-1"
+        data-tab="profile"
+      >Household Profile</button>
+    </nav>
+
+    <!-- Monthly income, expenses, and transaction entry. -->
+    <section
+      id="dashboard"
+      class="tab-panel"
+      role="tabpanel"
+      aria-labelledby="tab-dashboard"
+      tabindex="0"
+    >
+      <div class="month-navigation">
+        <button id="previous-month" type="button">← Previous month</button>
+        <h2 id="current-month-label">Monthly Budget</h2>
+        <button id="next-month" type="button">Next month →</button>
+      </div>
+
+      <div class="summary-cards" aria-label="Monthly totals">
+        <article class="summary-card">
+          <h3>Income</h3>
+          <p id="monthly-income-total">$0</p>
+        </article>
+        <article class="summary-card">
+          <h3>Expenses</h3>
+          <p id="monthly-expense-total">$0</p>
+        </article>
+        <article class="summary-card">
+          <h3>Remaining</h3>
+          <p id="monthly-balance-total">$0</p>
+        </article>
+      </div>
+
+      <section class="panel" aria-labelledby="add-transaction-heading">
+        <h3 id="add-transaction-heading">Add a transaction</h3>
+        <form id="transaction-form">
+          <div class="form-grid">
+            <label for="transaction-date">Date
+              <input
+                id="transaction-date"
+                name="date"
+                type="date"
+                required
+              >
+            </label>
+
+            <label for="transaction-description">Description
+              <input
+                id="transaction-description"
+                name="description"
+                type="text"
+                autocomplete="off"
+                required
+              >
+            </label>
+
+            <label for="transaction-type">Type
+              <select id="transaction-type" name="type" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+            </label>
+
+            <label for="transaction-category">Category
+              <input
+                id="transaction-category"
+                name="category"
+                type="text"
+                list="transaction-categories"
+                placeholder="e.g. Groceries"
+                required
+              >
+            </label>
+
+            <!-- Suggestions are optional; users can enter their own categories. -->
+            <datalist id="transaction-categories">
+              <option value="Housing"></option>
+              <option value="Utilities"></option>
+              <option value="Groceries"></option>
+              <option value="Transportation"></option>
+              <option value="Healthcare"></option>
+              <option value="Entertainment"></option>
+              <option value="Other"></option>
+            </datalist>
+
+            <label for="transaction-amount">Amount (USD)
+              <input
+                id="transaction-amount"
+                name="amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                inputmode="decimal"
+                required
+              >
+            </label>
+          </div>
+          <button type="submit">Add transaction</button>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="transactions-heading">
+        <h3 id="transactions-heading">Transactions</h3>
+        <div class="table-scroll">
+          <table>
+            <caption>Transactions for the selected month</caption>
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Description</th>
+                <th scope="col">Type</th>
+                <th scope="col">Category</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody id="transaction-list"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <!-- Charts comparing budgets, forecasts, and actual transaction totals. -->
+    <section
+      id="budget-history"
+      class="tab-panel"
+      role="tabpanel"
+      aria-labelledby="tab-budget-history"
+      tabindex="0"
+      hidden
+    >
+      <h2>Budget vs. History</h2>
+      <p class="chart-note">
+        Compare monthly budgets, three-month forecasts, and transaction totals.
+      </p>
+      <div class="history-charts">
+        <section class="history-chart-card" aria-labelledby="income-chart-heading">
+          <h3 id="income-chart-heading">Income</h3>
+          <div id="income-history-chart"></div>
+        </section>
+        <section class="history-chart-card" aria-labelledby="expense-chart-heading">
+          <h3 id="expense-chart-heading">Expenses</h3>
+          <div id="expense-history-chart"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Household cost estimates and optional weather-based information. -->
+    <section
+      id="forecast"
+      class="tab-panel"
+      role="tabpanel"
+      aria-labelledby="tab-forecast"
+      tabindex="0"
+      hidden
+    >
+      <h2>Household Cost Forecast</h2>
+
+      <section class="panel" aria-labelledby="house-characteristics-heading">
+        <h3 id="house-characteristics-heading">House characteristics</h3>
+        <p id="location-help">
+          Enter your home’s location and details. Coordinates are used to request
+          the local weather forecast.
+        </p>
+        <div class="form-grid">
+          <label for="home-address">Street address
+            <input
+              id="home-address"
+              autocomplete="street-address"
+              aria-describedby="location-help"
+            >
+          </label>
+          <label for="home-city">City
+            <input
+              id="home-city"
+              autocomplete="address-level2"
+              aria-describedby="location-help"
+            >
+          </label>
+          <label for="home-state">State abbreviation
+            <input
+              id="home-state"
+              maxlength="2"
+              autocomplete="address-level1"
+              aria-describedby="location-help"
+            >
+          </label>
+          <label for="home-zip">ZIP code
+            <input
+              id="home-zip"
+              autocomplete="postal-code"
+              inputmode="numeric"
+              aria-describedby="location-help"
+            >
+          </label>
+          <label for="home-latitude">Latitude
+            <input id="home-latitude" type="number" step="any">
+          </label>
+          <label for="home-longitude">Longitude
+            <input id="home-longitude" type="number" step="any">
+          </label>
+          <label for="home-square-footage">Home size (sq ft)
+            <input id="home-square-footage" type="number" min="0" step="1">
+          </label>
+          <label for="home-year-built">Year built
+            <input id="home-year-built" type="number" min="1700" max="2100" step="1">
+          </label>
+          <label for="home-climate-zone">Climate zone
+            <input id="home-climate-zone">
+          </label>
+          <label for="home-utility-territory">Utility territory
+            <input id="home-utility-territory">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="weather-heading">
+        <h3 id="weather-heading">7-day weather forecast</h3>
+        <p id="weather-help">
+          Uses National Weather Service forecast data for the entered coordinates.
+          Heating degree days (HDD) estimate how much outdoor temperatures are
+          below a 65°F baseline; they are not a heating-bill estimate.
+        </p>
+        <button
+          id="load-weather-forecast"
+          type="button"
+          aria-describedby="weather-help"
+        >Load 7-day weather forecast</button>
+        <div
+          id="weather-forecast-results"
+          aria-live="polite"
+          aria-atomic="true"
+        ></div>
+      </section>
+
+      <section class="panel" aria-labelledby="heating-oil-heading">
+        <h3 id="heating-oil-heading">Heating-oil estimate</h3>
+        <p id="oil-help">
+          Enter the price and number of gallons for the period you want to estimate.
+        </p>
+        <div class="form-grid">
+          <label for="oil-price-per-gallon">Price per gallon (USD)
+            <input
+              id="oil-price-per-gallon"
+              type="number"
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              aria-describedby="oil-help"
+            >
+          </label>
+          <label for="oil-gallons-used">Gallons used
+            <input
+              id="oil-gallons-used"
+              type="number"
+              min="0"
+              step="0.1"
+              inputmode="decimal"
+              aria-describedby="oil-help"
+            >
+          </label>
+        </div>
+        <p>Estimated cost: <strong id="heating-oil-estimate">$0.00</strong></p>
+      </section>
+
+      <section class="panel" aria-labelledby="water-estimate-heading">
+        <h3 id="water-estimate-heading">Water cost estimate</h3>
+        <p id="water-help">
+          Enter your baseline monthly water cost and the household size it covers.
+          Adjustments are percentages; positive values increase the estimate and
+          negative values reduce it.
+        </p>
+        <div class="form-grid">
+          <label for="water-baseline-cost">Baseline monthly cost (USD)
+            <input
+              id="water-baseline-cost"
+              type="number"
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              aria-describedby="water-help"
+            >
+          </label>
+          <label for="water-baseline-household-size">Baseline household size
+            <input
+              id="water-baseline-household-size"
+              type="number"
+              min="1"
+              step="1"
+              aria-describedby="water-help"
+            >
+          </label>
+          <label for="water-seasonal-adjustment">Seasonal adjustment (%)
+            <input
+              id="water-seasonal-adjustment"
+              type="number"
+              step="0.1"
+              inputmode="decimal"
+              aria-describedby="water-help"
+            >
+          </label>
+          <label for="water-temperature-adjustment">Temperature adjustment (%)
+            <input
+              id="water-temperature-adjustment"
+              type="number"
+              step="0.1"
+              inputmode="decimal"
+              aria-describedby="water-help"
+            >
+          </label>
+          <label for="water-rainfall-adjustment">Rainfall adjustment (%)
+            <input
+              id="water-rainfall-adjustment"
+              type="number"
+              step="0.1"
+              inputmode="decimal"
+              aria-describedby="water-help"
+            >
+          </label>
+        </div>
+        <p>Estimated monthly cost: <strong id="water-cost-estimate">$0.00</strong></p>
+      </section>
+
+      <section class="panel" aria-labelledby="forecast-costs-heading">
+        <h3 id="forecast-costs-heading">Forecasted monthly costs</h3>
+        <div id="forecast-results" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <!-- Household details and editable local benchmark amounts. -->
+    <section
+      id="profile"
+      class="tab-panel"
+      role="tabpanel"
+      aria-labelledby="tab-profile"
+      tabindex="0"
+      hidden
+    >
+      <h2>Household Profile</h2>
+      <form id="household-profile-form">
+        <div class="form-grid">
+          <label for="profile-state">State abbreviation
+            <input id="profile-state" maxlength="2">
+          </label>
+          <label for="profile-city">City
+            <input id="profile-city">
+          </label>
+          <label for="profile-home-type">Home type
+            <select id="profile-home-type">
+              <option value="">Select a home type</option>
+              <option value="house">House</option>
+              <option value="apartment">Apartment</option>
+              <option value="condo">Condominium</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label for="profile-household-size">Household size
+            <input
+              id="profile-household-size"
+              type="number"
+              min="1"
+              step="1"
+            >
+          </label>
+          <label for="profile-children-count">Number of children
+            <input
+              id="profile-children-count"
+              type="number"
+              min="0"
+              step="1"
+            >
+          </label>
+          <label for="profile-children-ages">Children’s ages
+            <input
+              id="profile-children-ages"
+              placeholder="e.g. 4, 8"
+            >
+          </label>
+        </div>
+        <button type="submit">Update profile</button>
+      </form>
+
+      <section class="panel" aria-labelledby="benchmarks-heading">
+        <h3 id="benchmarks-heading">Monthly budget benchmarks</h3>
+        <p>Use these as starting estimates and adjust them to fit your household.</p>
+
+        <!-- JavaScript creates the editable benchmark fields in this container. -->
+        <div id="benchmark-inputs"></div>
+        <button id="save-benchmarks" type="button">Update benchmarks</button>
+      </section>
+    </section>
+
+    <!-- Export or import a workbook to save or restore the in-memory budget data. -->
+    <section class="panel data-tools" aria-labelledby="data-tools-heading">
+      <h2 id="data-tools-heading">Save or continue a budget</h2>
+      <p>
+        Export your workbook before leaving. On a later visit, import it to restore
+        your transactions, budgets, and profile.
+      </p>
+      <div class="tool-buttons">
+        <button id="export-excel" type="button">Export budget to Excel</button>
+        <button id="download-template" type="button">Download fill-in template</button>
+        <label class="file-picker" for="import-excel">
+          Import budget from Excel
+          <input
+            id="import-excel"
+            type="file"
+            accept=".xlsx,.xls"
+          >
+        </label>
+      </div>
+
+      <!-- JavaScript announces import and export status to screen-reader users. -->
+      <p id="excel-status" aria-live="polite" aria-atomic="true"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Changes are not saved in this browser. Export your workbook to keep them.</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script>
+    // Adds keyboard navigation to the tab list, following the ARIA tabs pattern.
+    (() => {
+      const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+      const tabList = document.querySelector('[role="tablist"]');
+
+      function selectTab(tab, moveFocus = false) {
+        // Keep the selected state and keyboard tab stop in sync.
+        tabs.forEach(item => {
+          const selected = item === tab;
+          item.setAttribute("aria-selected", String(selected));
+          item.tabIndex = selected ? 0 : -1;
+        });
+
+        if (moveFocus) tab.focus();
+
+        // Reuse the click handler so the page's tab-panel logic also runs.
+        tab.click();
+      }
+
+      // Update ARIA state when a tab is selected by mouse or keyboard activation.
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          tabs.forEach(item => {
+            const selected = item === tab;
+            item.setAttribute("aria-selected", String(selected));
+            item.tabIndex = selected ? 0 : -1;
+          });
+        });
+      });
+
+      tabList.addEventListener("keydown", event => {
+        const currentIndex = tabs.indexOf(document.activeElement);
+        if (currentIndex < 0) return;
+
+        let nextIndex = currentIndex;
+
+        // Arrow keys move between tabs; Home and End jump to the first or last tab.
+        if (event.key === "ArrowRight") {
+          nextIndex = (currentIndex + 1) % tabs.length;
+        } else if (event.key === "ArrowLeft") {
+          nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        } else if (event.key === "Home") {
+          nextIndex = 0;
+        } else if (event.key === "End") {
+          nextIndex = tabs.length - 1;
+        } else {
+          return;
+        }
+
+        event.preventDefault();
+        selectTab(tabs[nextIndex], true);
+      });
+    })();
+  </script>
+</body>
+</html>

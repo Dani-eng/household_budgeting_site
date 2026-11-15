@@ -1,0 +1,477 @@
+/* Shared colors and sizing values used throughout the page. */
+:root {
+  color-scheme: light;
+  --text: #202922;
+  --muted: #52635a;
+  --page: #f7f6ef;
+  --panel: #fffefa;
+  --border: #d8dfd4;
+
+  --primary: #155b57;
+  --primary-hover: #104642;
+  --focus: #155eef;
+
+  --budget: #a34f68;
+  --forecast: #c28b2c;
+  --actual: #237a78;
+
+  --radius: 8px;
+  --shadow: 0 2px 8px rgb(20 40 30 / 8%);
+}
+
+/* Include padding and borders in each element's declared size. */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+/* Keep form controls consistent with the page's typography. */
+button, input, select {
+  font: inherit;
+}
+
+/* Shared button and file-picker appearance. */
+button, .file-picker {
+  min-height: 40px;
+  padding: .55rem .9rem;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+button:hover, .file-picker:hover {
+  border-color: var(--primary-hover);
+  background: var(--primary-hover);
+}
+
+/* Make keyboard focus visible without relying on color alone. */
+button:focus-visible, input:focus-visible, select:focus-visible,
+.file-picker:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Center the main page areas and keep them from growing too wide. */
+.site-header, main, .site-footer {
+  width: min(1100px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.site-header {
+  padding: 1.5rem 0 1rem;
+  border-bottom: 3px solid var(--actual);
+}
+
+.site-header h1 {
+  margin: 0;
+  color: var(--primary);
+  font-size: clamp(1.7rem, 4vw, 2.2rem);
+}
+
+.site-header p, .site-footer {
+  color: var(--muted);
+}
+
+.site-header p {
+  margin: .25rem 0 0;
+}
+
+main {
+  padding-bottom: 2rem;
+}
+
+.site-footer {
+  padding: 1rem 0 2rem;
+  border-top: 1px solid var(--border);
+  font-size: .9rem;
+}
+
+/* Highlight the note that the starting household data is fictional. */
+.demo-notice {
+  margin: .5rem 0 1rem;
+  padding: .8rem 1rem;
+  border: 1px solid #d6a500;
+  border-left: 5px solid var(--forecast);
+  border-radius: var(--radius);
+  background: #fff5cf;
+}
+
+/* Tab list and selected-tab styling. */
+.tab-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  padding: .5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.tab-button {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text);
+}
+
+.tab-button:hover, .tab-button.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+/* The hidden attribute removes inactive tab panels from view. */
+.tab-panel {
+  margin-bottom: 1rem;
+}
+
+.tab-panel[hidden] {
+  display: none !important;
+}
+
+/* Keep heading spacing and line-height consistent. */
+h2, h3 {
+  line-height: 1.25;
+}
+
+h2 {
+  margin: 1rem 0;
+  font-size: 1.5rem;
+}
+
+main h2 {
+  color: var(--primary);
+}
+
+h3 {
+  margin: 0 0 .85rem;
+  font-size: 1.1rem;
+}
+
+/* Shared card styling for panels, totals, and charts. */
+.panel, .summary-card, .history-chart-card {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.panel {
+  margin: 1rem 0;
+  border-top: 3px solid var(--actual);
+}
+
+/* Display monthly income, expenses, and balance in three columns. */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.summary-card {
+  border-top: 4px solid var(--actual);
+}
+
+/* Add a different palette accent to each summary card. */
+.summary-card:nth-child(3n + 2) {
+  border-top-color: var(--budget);
+}
+
+.summary-card:nth-child(3n + 3) {
+  border-top-color: var(--forecast);
+}
+
+.summary-card h3 {
+  margin-bottom: .35rem;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+.summary-card p {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* Month controls sit on either side of the selected month label. */
+.month-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: 1rem 0;
+}
+
+.month-navigation h2 {
+  margin: 0;
+  text-align: center;
+}
+
+/* Form fields automatically fit the available space. */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: .85rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  font-weight: 600;
+}
+
+input, select {
+  width: 100%;
+  min-height: 40px;
+  padding: .5rem .65rem;
+  border: 1px solid #9ba99e;
+  border-radius: 5px;
+  background: #fff;
+  color: var(--text);
+}
+
+input:focus-visible, select:focus-visible {
+  border-color: var(--primary);
+}
+
+/* File inputs have different native sizing, so keep their styling minimal. */
+input[type="file"] {
+  width: auto;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  color: inherit;
+}
+
+/* Allow wide transaction tables to scroll on smaller screens. */
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th, td {
+  padding: .7rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+th {
+  background: #eaf1ed;
+  color: var(--primary);
+  font-size: .9rem;
+}
+
+tbody tr:hover {
+  background: #f2f6f1;
+}
+
+td button {
+  min-height: 34px;
+  padding: .35rem .65rem;
+}
+
+/* Place income and expense charts side by side when there is room. */
+.history-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 1rem;
+}
+
+.history-chart-card {
+  min-width: 0;
+  overflow: hidden;
+  border-top: 3px solid var(--actual);
+}
+
+.history-chart-card:nth-child(3n + 2) {
+  border-top-color: var(--budget);
+}
+
+.history-chart-card:nth-child(3n + 3) {
+  border-top-color: var(--forecast);
+}
+
+.history-chart-card h3 {
+  margin-bottom: 1rem;
+}
+
+.chart-note {
+  margin: 0 0 1rem;
+  color: var(--muted);
+}
+
+/* Chart legend and grouped horizontal bars. */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1rem;
+  font-size: .85rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.month-group {
+  margin: 1rem 0 1.25rem;
+}
+
+.month-label {
+  margin-bottom: .4rem;
+  font-weight: 700;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 68px minmax(30px, 1fr) 82px;
+  align-items: center;
+  gap: .5rem;
+  margin: .35rem 0;
+  font-size: .85rem;
+}
+
+/* The track provides a neutral background behind each proportional bar. */
+.bar-track {
+  height: 16px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #e9eee6;
+}
+
+.bar {
+  height: 100%;
+  min-width: 0;
+  border-radius: 3px;
+  transition: width 180ms ease;
+}
+
+/* Use a distinct color for each chart series. */
+.bar-budget, .legend-swatch.bar-budget {
+  background: var(--budget);
+}
+
+.bar-forecast, .legend-swatch.bar-forecast {
+  background: var(--forecast);
+}
+
+.bar-actual, .legend-swatch.bar-actual {
+  background: var(--actual);
+}
+
+.bar-value {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-empty {
+  color: var(--muted);
+}
+
+/* Lay out workbook actions in a row that can wrap on narrow screens. */
+.data-tools .tool-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem;
+}
+
+.file-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+/* Preserve line breaks in status messages and weather results. */
+#excel-status, #weather-forecast-results {
+  white-space: pre-line;
+}
+
+/* Provide a consistent focus indicator for keyboard users. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Prevent long forecast text from forcing the page wider. */
+#forecast-results, #weather-forecast-results {
+  overflow-wrap: anywhere;
+}
+
+/* Compact the layout for phones and other narrow screens. */
+@media (max-width: 600px) {
+  .site-header, main, .site-footer {
+    width: min(100% - 1rem, 1100px);
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+    gap: .6rem;
+  }
+
+  .summary-card {
+    padding: .8rem;
+  }
+
+  .month-navigation {
+    flex-wrap: wrap;
+  }
+
+  .month-navigation h2 {
+    order: -1;
+    width: 100%;
+  }
+
+  .tab-navigation {
+    gap: .25rem;
+  }
+
+  .tab-button {
+    flex: 1 1 auto;
+    padding-inline: .55rem;
+    font-size: .9rem;
+  }
+
+  .bar-row {
+    grid-template-columns: 60px minmax(24px, 1fr) 72px;
+    gap: .35rem;
+    font-size: .78rem;
+  }
+}
+
+/* Reduce or remove transitions for people who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -5,7 +5,7 @@
 
 A simple household budgeting app for tracking income and expenses, viewing budget history, and estimating household costs.
 
-It starts with sample data for a fictional family in Indianapolis. Changes aren’t saved in the browser, so export your budget to Excel before leaving.
+It starts with sample data for a fictional family in Indianapolis to help user familiarize themselves with the site. Changes aren’t saved in the browser, so export your budget to Excel before leaving.
 
 ## Features
 
